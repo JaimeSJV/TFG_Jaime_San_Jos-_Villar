@@ -46,12 +46,12 @@ def ratio(i, cont):
     mask = np.zeros(i.shape, dtype=np.uint8)
     cv2.drawContours(mask, [cont], -1, (255,255,255), -1)
 
+    # Este codigo comentado guarda la imagen del contorno
     cv2.imwrite("1-Contorno_Cuad.jpg", mask)
 
     x, y, w, h = cv2.boundingRect(cont)
     edges_zoom = mask[y:y+h, x:x+w]
 
-    #h, w = edges_zoom.shape[:2]
     edges_zoom = 255 - edges_zoom
     total_white = cv2.countNonZero(edges_zoom[0:w, 0:h])
     ratio = total_white / float(w*h)
@@ -87,9 +87,12 @@ def esquinas(cont):
     return minX, minY, MaxX, MaxY
 
 def fix_cuad(img):
+    #Se puede alternar el uso de pre_AT (Umbral gaussiano adaptativo) y pre_O (Umbral Otsu)
     edg = pre_O(img)
     #edg = pre_AT(img)
-    cv2.imwrite("0-Thresh_Pre.jpg", edg)
+
+    #Este codigo comentado guarda la imagen despues de aplicar el umbral, erosión y dilatación
+    #cv2.imwrite("0-Thresh_Pre.jpg", edg)
     cont = contours(edg)
     m_cont = max_cont(cont)
     return ajuste_img(img, edg, m_cont)
@@ -97,7 +100,6 @@ def fix_cuad(img):
 def ajuste_img(i, e, m_cont):
     r, ch, cw, cx, cy = ratio(i, m_cont)
 
-    #Ratio funcional en 0.015
     print("Ratio: " + str(r))
     if r < 0.03:
         x, y, w, h = cv2.boundingRect(m_cont)
@@ -160,8 +162,9 @@ def ajuste_img(i, e, m_cont):
                       (10, h-10), (w-15, h-10)])
     M = cv2.getPerspectiveTransform(src, dst)
     fix_c = cv2.warpPerspective(e, M, (w, h), flags=cv2.INTER_LINEAR)
-
-    cv2.imwrite("2-Fix_Cuad.jpg", fix_c)
+    
+    #Se guarda la imagen despues de aplicar el ajuste de perspectiva
+    #cv2.imwrite("2-Fix_Cuad.jpg", fix_c)
     
     return fix_c
 
@@ -177,6 +180,7 @@ def respuestas(i):
     idz = 0
     while idz < 60:
         celda = i[y+zoom_y:y+h_c-zoom_y, x+zoom_x:x+w_c-zoom_x]
+        # Este codigo comentado sirve para guardar imagenes de las cuatro primeras celdas
         #if idz < 4:
         #    cv2.imwrite("celda" + str(idz) + ".jpg", celda)
         total_white = cv2.countNonZero(celda)
@@ -262,11 +266,13 @@ def id_cuad(fix_cuad):
     
     y_img = cv2.erode(fix_cuad, y_kernel, iterations=3)
     y_lines = cv2.dilate(y_img, y_kernel, iterations=4)
-    cv2.imwrite("3-Lineas_Y.jpg", y_lines)  
+    # Este codigo comentado guarda la imagen de las lineas verticales
+    #cv2.imwrite("3-Lineas_Y.jpg", y_lines)  
 
     x_img = cv2.erode(fix_cuad, x_kernel, iterations=3)
     x_lines = cv2.dilate(x_img, x_kernel, iterations=4)
-    cv2.imwrite("4-Lineas_X.jpg", x_lines)
+    # Este codigo comentado guarda la imagen de las lineas horizontales
+    #cv2.imwrite("4-Lineas_X.jpg", x_lines)
 
     h, w = fix_cuad.shape[:2]
     y_min = h - (h/4)
