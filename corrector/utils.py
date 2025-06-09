@@ -47,7 +47,7 @@ def ratio(i, cont):
     cv2.drawContours(mask, [cont], -1, (255,255,255), -1)
 
     # Este codigo comentado guarda la imagen del contorno
-    cv2.imwrite("1-Contorno_Cuad.jpg", mask)
+    #cv2.imwrite("1-Contorno_Cuad.jpg", mask)
 
     x, y, w, h = cv2.boundingRect(cont)
     edges_zoom = mask[y:y+h, x:x+w]
@@ -141,7 +141,6 @@ def ajuste_img(i, e, m_cont):
  
     else:
         minX, minY, MaxX, MaxY = esquinas(m_cont)
-        #Añadir cuadricula no legible
         if minX[0][1] < MaxX[0][1]:
             SI = minX[0]
             SD = minY[0]
